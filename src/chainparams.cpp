@@ -48,14 +48,14 @@ public:
         // The message start string is designed to be unlikely to occur in normal data.
         // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
         // a large 4-byte int at any alignment.
-        pchMessageStart[0] = 0xcd;
-        pchMessageStart[1] = 0x1f;
-        pchMessageStart[2] = 0x3a;
-        pchMessageStart[3] = 0x2d;
-        vAlertPubKey = ParseHex("04efeb100c56024726d9d1793b475dd9fcd614b28b05251b700c115406ef275991ff2b95fa7b4f14fb3b08150e1c54b909b4d8d01fd4a666eaacf0eddad1c4cd83");
-        nDefaultPort = 27879;
-        nRPCPort = 27878;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 16);
+        pchMessageStart[0] = 0x65;
+        pchMessageStart[1] = 0x44;
+        pchMessageStart[2] = 0x15;
+        pchMessageStart[3] = 0x06;
+        vAlertPubKey = ParseHex("");
+        nDefaultPort = 17014;
+        nRPCPort = 17015;
+        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
 
         // Build the genesis block. Note that the output of the genesis coinbase cannot
         // be spent as it did not originally exist in the database.
@@ -65,9 +65,9 @@ public:
         //    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a24323020466562203230313420426974636f696e2041544d7320636f6d6520746f20555341)
         //    CTxOut(empty)
         //  vMerkleTree: 12630d16a9
-        const char* pszTimestamp = "";
+        const char* pszTimestamp = "plz time stamp. stahp";
         CTransaction txNew;
-        txNew.nTime = 1430678491;
+        txNew.nTime = 1426450258;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
@@ -76,25 +76,27 @@ public:
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1430678491;
+        genesis.nTime    = 1426450258;
         genesis.nBits    = bnProofOfWorkLimit.GetCompact(); 
-        genesis.nNonce   = 35877;
+        genesis.nNonce   = 925125;
 
         hashGenesisBlock = genesis.GetHash();
 
-        assert(hashGenesisBlock == uint256("0x4f1e07861ef688902fe884ffe323cb3045f849449e70fc7c195ceb184ee311ac"));
-        assert(genesis.hashMerkleRoot == uint256("0x44a7dbb7f805dad85242ebd7e6af75dcccf3f1b2ff08a158c7ee56c6acb18ed4"));
-
+        assert(hashGenesisBlock == uint256("0x0000032101032f27e7cdddb1196353f7fc9e1b6294717432135add95534f67c6"));
+        assert(genesis.hashMerkleRoot == uint256("0x6e8089863e3811437cca6029c8eb113e0ddec4cb553e7cfdf8944c964cf86832"));
+       
+        vSeeds.push_back(CDNSSeedData("91.121.6.19", "91.121.6.19"));
+        vSeeds.push_back(CDNSSeedData("93.157.4.11", "93.157.4.11"));
         
-        base58Prefixes[PUBKEY_ADDRESS] = list_of(38);
-        base58Prefixes[SCRIPT_ADDRESS] = list_of(85);
-        base58Prefixes[SECRET_KEY] =     list_of(153);
+        base58Prefixes[PUBKEY_ADDRESS] = list_of(90);
+        base58Prefixes[SCRIPT_ADDRESS] = list_of(8);
+        base58Prefixes[SECRET_KEY] =     list_of(171);
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E);
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xAD)(0xE4);
-
+  
         convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
 
-        nLastPOWBlock = 10000;
+        nLastPOWBlock = 8000;
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -120,26 +122,27 @@ public:
         // The message start string is designed to be unlikely to occur in normal data.
         // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
         // a large 4-byte int at any alignment.
-        pchMessageStart[0] = 0x1f;
-        pchMessageStart[1] = 0xcd;
-        pchMessageStart[2] = 0x2d;
-        pchMessageStart[3] = 0x3a;
+        pchMessageStart[0] = 0xbd;
+        pchMessageStart[1] = 0xa5;
+        pchMessageStart[2] = 0xd3;
+        pchMessageStart[3] = 0xa7;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 16);
-        vAlertPubKey = ParseHex("04efeb100c56024726d9d1793b475dd9fcd614b28b05251b700c115406ef275991ff2b95fa7b4f14fb3b08150e1c54b909b4d8d01fd4a666eaacf0eddad1c4cd83");
-        nDefaultPort = 17876;
-        nRPCPort = 17879;
+        vAlertPubKey = ParseHex("");
+        nDefaultPort = 27014;
+        nRPCPort = 27015;
         strDataDir = "testnet";
 
         // Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nBits  = 520159231; 
-        genesis.nNonce = 35877;
+        genesis.nBits  = bnProofOfWorkLimit.GetCompact();
+        genesis.nNonce = 224610;
 
-        assert(hashGenesisBlock == uint256("0x4f1e07861ef688902fe884ffe323cb3045f849449e70fc7c195ceb184ee311ac"));
+        hashGenesisBlock = genesis.GetHash();
+        assert(hashGenesisBlock == uint256("0x0000373f620a91549f65fe8c9938910e60a486d72b72376b8fad424c1762cce4"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        base58Prefixes[PUBKEY_ADDRESS] = list_of(97);
+        base58Prefixes[PUBKEY_ADDRESS] = list_of(111);
         base58Prefixes[SCRIPT_ADDRESS] = list_of(196);
         base58Prefixes[SECRET_KEY]     = list_of(239);
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x35)(0x87)(0xCF);
