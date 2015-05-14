@@ -1,0 +1,9 @@
+Building Litedoge
+
+See doc/readme-qt.rst for instructions on building Litedoge QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of Litedoge.
+
+See doc/build-*.txt for instructions on building litedoged,
+the intended-for-services, no-graphical-interface, reference
+implementation of Litedoge.
