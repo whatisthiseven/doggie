@@ -59,7 +59,7 @@ class CReserveKey;
 class CWallet;
 
 /** The maximum allowed size for a serialized block, in bytes (network rule) */
-static const unsigned int MAX_BLOCK_SIZE = 20000000;
+static const unsigned int MAX_BLOCK_SIZE = 1000000;
 /** The maximum size for mined blocks */
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2;
 /** The maximum size for transactions we're willing to relay/mine **/
@@ -77,23 +77,23 @@ static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 750;
 /** The maximum number of entries in an 'inv' protocol message */
 static const unsigned int MAX_INV_SZ = 50000;
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
-static const int64_t MIN_TX_FEE = 100;
+static const int64_t MIN_TX_FEE = 99000000;
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying) */
 static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 /** No amount larger than this (in satoshi) is valid */
-static const int64_t MAX_MONEY = 4000000000 * COIN; // 1M PoW coins
+static const int64_t MAX_MONEY = 50000000000 * COIN; 
 inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 
-inline bool IsProtocolV1RetargetingFixed(int nHeight) { return TestNet() || nHeight > 0; }
-inline bool IsProtocolV2(int nHeight) { return TestNet() || nHeight > 0; }
+inline bool IsProtocolV1RetargetingFixed(int nHeight) { return TestNet() || nHeight > 1; }
+inline bool IsProtocolV2(int nHeight) { return TestNet() || nHeight > 2; }
 
 inline int64_t FutureDriftV1(int64_t nTime) { return nTime + 10 * 60; }
-inline int64_t FutureDriftV2(int64_t nTime) { return nTime + 10 * 60; }
+inline int64_t FutureDriftV2(int64_t nTime) { return nTime + 15; }
 inline int64_t FutureDrift(int64_t nTime, int nHeight) { return IsProtocolV2(nHeight) ? FutureDriftV2(nTime) : FutureDriftV1(nTime); }
 
-inline unsigned int GetTargetSpacing(int nHeight) { return IsProtocolV2(nHeight) ? 69 : 69; }
+inline unsigned int GetTargetSpacing(int nHeight) { return IsProtocolV2(nHeight) ? 64 : 60; }
 
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
