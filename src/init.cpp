@@ -969,14 +969,17 @@ bool AppInit2(boost::thread_group& threadGroup)
        1LDOGE+1000 == (.1LDOGE+100)*10
        10LDOGE+10000 == (1LDOGE+1000)*10
     */
+    darkSendDenominations.push_back( (100000000   * COIN)+100000000000 );    
+    darkSendDenominations.push_back( (10000000    * COIN)+10000000000 );    
+    darkSendDenominations.push_back( (1000000     * COIN)+1000000000 );    
     darkSendDenominations.push_back( (100000      * COIN)+100000000 );    
     darkSendDenominations.push_back( (10000       * COIN)+10000000 );
     darkSendDenominations.push_back( (1000        * COIN)+1000000 );
+    /* Disabled till we need them
     darkSendDenominations.push_back( (100         * COIN)+100000 );
     darkSendDenominations.push_back( (10          * COIN)+10000 );
     darkSendDenominations.push_back( (1           * COIN)+1000 );
     darkSendDenominations.push_back( (.1          * COIN)+100 );
-    /* Disabled till we need them
     darkSendDenominations.push_back( (.01      * COIN)+10 );
     darkSendDenominations.push_back( (.001     * COIN)+1 );
     */
