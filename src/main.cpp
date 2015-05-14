@@ -41,12 +41,12 @@ map<uint256, CBlockIndex*> mapBlockIndex;
 set<pair<COutPoint, unsigned int> > setStakeSeen;
 
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
-CBigNum bnProofOfStakeLimitV2(~uint256(0) >> 20);
+CBigNum bnProofOfStakeLimitV2(~uint256(0) >> 48);
 
-unsigned int nStakeMinAge = 4 * 60 * 60; // 5 hours
-unsigned int nModifierInterval = 4 * 60; // time to elapse before new modifier is computed
+unsigned int nStakeMinAge = 8 * 60 * 60; // 8 hours
+unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
-int nCoinbaseMaturity = 45;
+int nCoinbaseMaturity = 500;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
 
@@ -1129,51 +1129,95 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 {
-    int64_t nSubsidy = 1 * COIN;
+    int64_t nSubsidy = 0;
+    if(nHeight < 30)
+    {
+    nSubsidy = 1000 * COIN; 
+    }
+    else if(nHeight < 1000)
+    {
+    nSubsidy = 1000000 * COIN;
+    }
+    else if(nHeight < 2000)
+    {
+    nSubsidy = 500000 * COIN;
+    }
+    else if(nHeight < 3000)
+    {
+    nSubsidy = 250000 * COIN;
+    }
+    else if(nHeight < 4000)
+    {
+    nSubsidy = 125000 * COIN;
+    }
+    else if(nHeight < 5000)
+    {
+    nSubsidy = 62500 * COIN;
+    }
+    else if(nHeight < 6000)
+    {
+    nSubsidy = 31250 * COIN;
+    }
+    else if(nHeight < 7000)
+    {
+    nSubsidy = 15625 * COIN;
+    }
+    else if(nHeight <= 8000)
+    {
+    nSubsidy = 10000 * COIN;
+    }
 
-    if(nHeight <= 500)
-    {
-        nSubsidy = 1000 * COIN;
-    }
-    else if(nHeight <= 1000)
-    {
-        nSubsidy = 500 * COIN;
-    }
-    else if(nHeight <= 1500)
-    {
-        nSubsidy = 400 * COIN;
-    }
-    else if(nHeight <= 2200)
-    {
-        nSubsidy =  300 * COIN;
-    }
-    else if(nHeight <=2400)
-    {
-        nSubsidy = 1000 * COIN;
-    }
-
-    return nSubsidy + nFees;
+//LogPrint("creation", "GetProofOfWorkReward() : create=%s nSubsidy=%d\n", FormatMoney(nSubsidy), nSubsidy);
+return nSubsidy + nFees;
 
 }
+
+static const int g_RewardHalvingPeriod = 2000000;
 
 // miner's coin stake reward based on coin age spent (coin-days)
 int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees)
 {
-    int64_t nSubsidy = 50 * COIN;
 
-    if(nHeight <= 2400)
+    int64_t nSubsidy = 1000 * COIN;
+
+    if(pindexBest->nHeight < 10000)
     {
-        nSubsidy = 100 * COIN;
+    nSubsidy = 100000 * COIN;
     }
-    else if(nHeight <= 4000)
+    else if(pindexBest->nHeight < 20000)
     {
-        nSubsidy = 1000 * COIN;
+    nSubsidy = 50000 * COIN;
+    }
+    else if(pindexBest->nHeight < 30000)
+    {
+    nSubsidy = 25000 * COIN;
+    }
+    else if(pindexBest->nHeight < 40000)
+    {
+    nSubsidy = 12500 * COIN;
+    }
+    else if(pindexBest->nHeight < 51000)
+    {
+    nSubsidy = 10000 * COIN;
+    
+    // Subsidy is cut in half every g_RewardHalvingPeriod blocks which will occur approximately every 4 years.
+    int halvings = pindexBest->nHeight / g_RewardHalvingPeriod;
+    nSubsidy = (halvings >= 64)? 0 : (nSubsidy >> halvings);
+    nSubsidy -= nSubsidy*(pindexBest->nHeight % g_RewardHalvingPeriod)/(2*g_RewardHalvingPeriod);
+    }
+    else if(pindexBest->nHeight < 250000)
+    {
+    nSubsidy = 30000 * COIN;
+    }
+    else
+    {
+    nSubsidy = 10000 * COIN;
     }
 
     return nSubsidy + nFees;
 }
 
-static int64_t nTargetTimespan = 10 * 69;  // 11.5 mins
+static int64_t nTargetTimespan = 16 * 60;  // 16 mins
 
 //
 // maximum nBits value could possible be required nTime after
@@ -1221,38 +1265,35 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
     return pindex;
 }
 
-int nTargetSpacing = 69;
+//int nTargetSpacing = 60;
 
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
-{   
-    CBigNum bnTargetLimit = fProofOfStake ? GetProofOfStakeLimit(pindexLast->nHeight) : Params().ProofOfWorkLimit();
-
-    if (pindexLast == NULL)
-        return bnTargetLimit.GetCompact(); // genesis block
-
-    const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
-    if (pindexPrev->pprev == NULL)
-        return bnTargetLimit.GetCompact(); // first block
-    const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
-    if (pindexPrevPrev->pprev == NULL)
-        return bnTargetLimit.GetCompact(); // second block
-
-    int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
-    if (nActualSpacing < 0)
-        nActualSpacing = nTargetSpacing;
-
-    // ppcoin: target change every block
-    // ppcoin: retarget with exponential moving toward target spacing
-    CBigNum bnNew;
-    bnNew.SetCompact(pindexPrev->nBits);
-    int64_t nInterval = nTargetTimespan / nTargetSpacing;
-    bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
-    bnNew /= ((nInterval + 1) * nTargetSpacing);
-
-    if (bnNew <= 0 || bnNew > bnTargetLimit)
-        bnNew = bnTargetLimit;
-
-    return bnNew.GetCompact();
+{
+CBigNum bnTargetLimit = fProofOfStake ? GetProofOfStakeLimit(pindexLast->nHeight) : Params().ProofOfWorkLimit();
+if (pindexLast == NULL)
+return bnTargetLimit.GetCompact(); // genesis block
+const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
+if (pindexPrev->pprev == NULL)
+return bnTargetLimit.GetCompact(); // first block
+const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
+if (pindexPrevPrev->pprev == NULL)
+return bnTargetLimit.GetCompact(); // second block
+int64_t nTargetSpacing = GetTargetSpacing(pindexLast->nHeight);
+int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
+if (IsProtocolV1RetargetingFixed(pindexLast->nHeight)) {
+if (nActualSpacing < 0)
+nActualSpacing = nTargetSpacing;
+}
+// ppcoin: target change every block
+// ppcoin: retarget with exponential moving toward target spacing
+CBigNum bnNew;
+bnNew.SetCompact(pindexPrev->nBits);
+int64_t nInterval = nTargetTimespan / nTargetSpacing;
+bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
+bnNew /= ((nInterval + 1) * nTargetSpacing);
+if (bnNew <= 0 || bnNew > bnTargetLimit)
+bnNew = bnTargetLimit;
+return bnNew.GetCompact();
 }
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)
